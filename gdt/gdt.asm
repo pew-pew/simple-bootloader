@@ -1,6 +1,6 @@
 gdt_start:
     gdt_null:
-        times 4 db 0 ; empty entry
+        times 8 db 0 ; empty entry
 
     gdt_code:
         %include "gdt/gdt_code_segment.asm"
@@ -10,8 +10,9 @@ gdt_start:
 gdt_end:
 
 gdt:
-    dw (gdt_end - gdt_start) - 1
-    dw gdt_start
+    db (gdt_end - gdt_start) - 1
+    db 0
+    dd gdt_start
 
 CODE_SEG equ gdt_code - gdt_start
 DATA_SEG equ gdt_data - gdt_start
