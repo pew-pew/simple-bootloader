@@ -1,41 +1,55 @@
 [org 0x7c00]
 
-mov bp, 0x8000
+mov bp, 0x9000
 mov sp, bp
 
-mov dh, 1
-mov bx, 0x8100
-;mov dl, 0x80 ; expecting in drive 0
-mov dl, 0 ; expecting in floppy
-call disk_load
-
-
-mov ax, m
+mov ax, hi_msg
 call print_string
 
-mov al, [bx]
-call print_char
+jmp switch
 
-jmp $
-
-m: db `ok\r\n`, 0
-
+%include "gdt/gdt.asm"
 %include "real-mode/print.asm"
-%include "real-mode/disk.asm"
+
+[bits 16]
+switch:
+    cli ; disable interrupts
+    lgdt [gdt]
 
 
-;gdt_start:
-;    times 4 db 0 ; empty entry
-;    %include "gdt/gdt_code_segment.asm"
-;    %include "gdt/gdt_data_segment.asm"
-;gdt_end:
-;
-;gdt_table:
-;    db (gdt_end - gdt_start) - 1
-;    db 0
-;    dw gdt_start
+    mov eax, cr0
+    or eax, 0b1
+    mov cr0, eax
+
+    jmp CODE_SEG:entered
+
+[bits 32]
+entered:
+    mov ax, DATA_SEG
+    mov ds, ax
+    mov ss, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+
+    mov ebp, 0x90000
+    mov esp, ebp
+
+    call BEGIN_PM
+
+BEGIN_PM:
+    mov ebx, hi_msg
+    call print_string_pm
+
+    jmp $
+
+%include "print_32.asm"
+
+[bits 16]
+
+
+hi_msg:
+    db 'Entering real mode...', `\r\n`, 0
 
 times 510 - ($-$$) db 0
 dw 0xaa55
-
-db 'hello'
