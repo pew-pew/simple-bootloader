@@ -17,7 +17,7 @@ print_string_pm:
         mov ah, WHITE_ON_BLACK
 
         mov [edx], ax
-        add edx, 1
+        add edx, 2
         add ebx, 1
         jmp print_string_pm_loop
 

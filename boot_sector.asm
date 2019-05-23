@@ -20,7 +20,7 @@ BEGIN_PM:
 
 
 hi_msg:
-    db 'Entering real mode...', `\r\n`, 0
+    db 'Entering real mode...', 0
 
 times 510 - ($-$$) db 0
 dw 0xaa55

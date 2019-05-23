@@ -5,7 +5,7 @@ switch_to_protected:
 
     mov eax, cr0
     or eax, 0b1
-    mov cr0, eax
+    mov cr0, eax ; enable protected mode
 
     jmp CODE_SEG:begin_protected
 
@@ -21,4 +21,5 @@ begin_protected:
     mov ebp, 0x90000
     mov esp, ebp
 
-    call BEGIN_PM
+    jmp BEGIN_PM
+    jmp $ ; never return here, please

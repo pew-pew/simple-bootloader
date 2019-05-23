@@ -1,5 +1,5 @@
 ; char in al
-print_char:
+real_print_char:
     push ax
 
     mov ah, 0x0e
@@ -9,22 +9,22 @@ print_char:
     ret
 
 ; pointer to string in ax
-print_string:
+real_print_string:
     push ax
     push bx
     mov bx, ax
 
-    print_string_loop:
+    real_print_string_loop:
         mov al, [bx]
         cmp al, 0
-        je print_string_end
+        je real_print_string_end
 
-        call print_char
+        call real_print_char
 
         inc bx
-        jmp print_string_loop
+        jmp real_print_string_loop
 
-    print_string_end:
+    real_print_string_end:
 
 
     pop bx
@@ -32,18 +32,18 @@ print_string:
     ret
 
 ; in al
-print_hex_4b:
+real_print_hex_4b:
     push bx
     push ax
 
     mov bl, al
 
     shr al, 4
-    call print_hex_digit
+    call real_print_hex_digit
 
     mov al, bl
     and al, 0x0f
-    call print_hex_digit
+    call real_print_hex_digit
 
     pop ax
     pop bx
@@ -51,9 +51,9 @@ print_hex_4b:
     ret
 
 ; in al
-print_hex_digit:
+real_print_hex_digit:
     cmp al, 10
-    
+
     jge big
         add al, '0'
         jmp fin
@@ -62,18 +62,18 @@ print_hex_digit:
         add al, ('a' - 10)
 
     fin:
-        call print_char
+        call real_print_char
 
     ret
 
-print_nl:
+real_print_nl:
     push ax
 
     mov al, `\r`
-    call print_char
-    
+    call real_print_char
+
     mov al, `\n`
-    call print_char
+    call real_print_char
 
     pop ax
     ret
