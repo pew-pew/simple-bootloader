@@ -1,3 +1,9 @@
+; Intel software developer manual
+; Vol. 3A 9-13
+
+; Page 325 of
+; https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-vol-3a-part-1-manual.pdf
+
 [bits 16]
 switch_to_protected:
     cli ; disable interrupts
@@ -11,6 +17,8 @@ switch_to_protected:
 
 [bits 32]
 begin_protected:
+    ; ltr?
+
     mov ax, DATA_SEG
     mov ds, ax
     mov ss, ax

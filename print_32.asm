@@ -3,9 +3,10 @@
 VIDEO_MEMORY equ 0xb8000
 WHITE_ON_BLACK equ 0x0f
 
-; ebx - pointer to string
+; eax - pointer to string
 print_string_pm:
     pusha
+    mov ebx, eax
 
     mov edx, VIDEO_MEMORY
 

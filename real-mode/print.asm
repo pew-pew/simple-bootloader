@@ -1,3 +1,5 @@
+[bits 16]
+
 ; char in al
 real_print_char:
     push ax
