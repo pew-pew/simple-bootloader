@@ -8,20 +8,19 @@ DST = build
 
 .PHONY: run
 run: build/os_image.bin
-	qemu-system-x86_64 -drive format=raw,if=floppy,file=build/os_image.bin
+	qemu-system-x86_64 -drive format=raw,if=ide,file=$<
 
 build/kernel.o: kernel.c
-	$(CC) $(CC_FLAGS) kernel.c -c -o build/kernel.o
+	$(CC) $(CC_FLAGS) $^ -c -o $@
 
 build/kernel_entry.o: kernel_entry.asm
-	nasm -f elf kernel_entry.asm -o build/kernel_entry.o
+	nasm -f elf $^ -o $@
 
 build/kernel.bin: build/kernel_entry.o build/kernel.o
-	$(LD) build/kernel_entry.o build/kernel.o \
-		--oformat binary -Ttext $(KERNEL_OFFSET) -o build/kernel.bin
+	$(LD) $^ --oformat binary -Ttext $(KERNEL_OFFSET) -o $@
 
-build/boot_sector.bin: boot_sector.asm
-	nasm -f bin boot_sector.asm -o build/boot_sector.bin
+build/boot_sector.bin: boot/boot_sector.asm
+	nasm -f bin $^ -o $@
 
 build/os_image.bin: build/boot_sector.bin build/kernel.bin
-	cat build/boot_sector.bin build/kernel.bin > build/os_image.bin
+	cat $^ > $@

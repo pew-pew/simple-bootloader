@@ -3,10 +3,10 @@ gdt_start:
         times 8 db 0 ; empty entry
 
     gdt_code:
-        %include "gdt/gdt_code_segment.asm"
+        %include "boot/gdt/gdt_code_segment.asm"
 
     gdt_data:
-        %include "gdt/gdt_data_segment.asm"
+        %include "boot/gdt/gdt_data_segment.asm"
 gdt_end:
 
 gdt:
