@@ -45,7 +45,7 @@ build/kernel/kernel_entry.o: kernel/kernel_entry.asm
 build/kernel.bin: build/kernel/kernel_entry.o $(C_OBJ)
 	$(LD) --oformat binary -Ttext $(KERNEL_OFFSET) $^ -o $@
 
-build/kernel.elf: build/kernel_entry.o build/kernel.o
+build/kernel.elf: build/kernel/kernel_entry.o $(C_OBJ)
 	$(LD) -Ttext $(KERNEL_OFFSET) $^ -o $@
 
 # ===========
