@@ -15,28 +15,35 @@ KERNEL_OFFSET = 0x1000
 run: build/os_image.bin
 	qemu-system-x86_64 -drive format=raw,if=ide,file=$<
 
-.PHONY: debug
-debug: build/os_image.bin build/kernel.elf
-	qemu-system-x86_64 -drive format=raw,if=ide,file=$< -s -S &
-	sleep 1
-	$(GDB) \
-		-ex "symbol-file build/kernel.elf" \
-		-ex "break main" \
-		-ex "target remote localhost:1234" \
-		-ex "continue" \
-		-ex "layout src"
+#.PHONY: debug
+#debug: build/os_image.bin build/kernel.elf
+#	qemu-system-x86_64 -drive format=raw,if=ide,file=$< -s -S &
+#	sleep 1
+#	$(GDB) \
+#		-ex "symbol-file build/kernel.elf" \
+#		-ex "break main" \
+#		-ex "target remote localhost:1234" \
+#		-ex "continue" \
+#		-ex "layout src"
+#
 
 # ======
 # Kernel
 
-build/kernel.o: kernel/kernel.c
-	$(CC) $(CC_FLAGS) $^ -c -o $@
+C_SOURCES = $(wildcard kernel/*.c) $(wildcard drivers/*.c)
+C_HEADERS = $(wildcard kernel/*.c) $(wildcard drivers/*.c)
+C_OBJ = $(addprefix build/, $(C_SOURCES:.c=.o))
 
-build/kernel_entry.o: kernel/kernel_entry.asm
+build/%.o: %.c $(C_HEADERS)
+	mkdir -p build/kernel
+	$(CC) $(CC_FLAGS) $< -c -o $@
+
+build/kernel/kernel_entry.o: kernel/kernel_entry.asm
+	mkdir -p build/kernel
 	nasm -f elf $^ -o $@
 
-build/kernel.bin: build/kernel_entry.o build/kernel.o
-	$(LD) $^ --oformat binary -Ttext $(KERNEL_OFFSET) -o $@
+build/kernel.bin: build/kernel/kernel_entry.o $(C_OBJ)
+	$(LD) --oformat binary -Ttext $(KERNEL_OFFSET) $^ -o $@
 
 build/kernel.elf: build/kernel_entry.o build/kernel.o
 	$(LD) -Ttext $(KERNEL_OFFSET) $^ -o $@
