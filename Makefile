@@ -1,14 +1,30 @@
-CC = i386-elf-gcc
-LD = i386-elf-ld
-CC_FLAGS = -ffreestanding -fno-asynchronous-unwind-tables
+BIN_ROOT = "cross-compiler/i386elfgcc/bin"
+CC = $(BIN_ROOT)/i386-elf-gcc
+LD = $(BIN_ROOT)/i386-elf-ld
+#GDB = $(BIN_ROOT)/i386-elf-gdb
+GDB = gdb
+
+CC_FLAGS = -g -ffreestanding -fno-asynchronous-unwind-tables
+
+DST = build
 
 KERNEL_OFFSET = 0x1000
 
-DST = build
 
 .PHONY: run
 run: build/os_image.bin
 	qemu-system-x86_64 -drive format=raw,if=ide,file=$<
+
+.PHONY: debug
+debug: build/os_image.bin build/kernel.elf
+	qemu-system-x86_64 -drive format=raw,if=ide,file=$< -s -S &
+	sleep 1
+	$(GDB) \
+		-ex "symbol-file build/kernel.elf" \
+		-ex "break main" \
+		-ex "target remote localhost:1234" \
+		-ex "continue" \
+		-ex "layout src"
 
 # ======
 # Kernel
@@ -21,6 +37,9 @@ build/kernel_entry.o: kernel/kernel_entry.asm
 
 build/kernel.bin: build/kernel_entry.o build/kernel.o
 	$(LD) $^ --oformat binary -Ttext $(KERNEL_OFFSET) -o $@
+
+build/kernel.elf: build/kernel_entry.o build/kernel.o
+	$(LD) -Ttext $(KERNEL_OFFSET) $^ -o $@
 
 # ===========
 # Boot sector
