@@ -10,17 +10,27 @@ DST = build
 run: build/os_image.bin
 	qemu-system-x86_64 -drive format=raw,if=ide,file=$<
 
-build/kernel.o: kernel.c
+# ======
+# Kernel
+
+build/kernel.o: kernel/kernel.c
 	$(CC) $(CC_FLAGS) $^ -c -o $@
 
-build/kernel_entry.o: kernel_entry.asm
+build/kernel_entry.o: kernel/kernel_entry.asm
 	nasm -f elf $^ -o $@
 
 build/kernel.bin: build/kernel_entry.o build/kernel.o
 	$(LD) $^ --oformat binary -Ttext $(KERNEL_OFFSET) -o $@
 
+# ===========
+# Boot sector
+
 build/boot_sector.bin: boot/boot_sector.asm
 	nasm -f bin $^ -o $@
+
+
+# ========
+# OS Image
 
 build/os_image.bin: build/boot_sector.bin build/kernel.bin
 	cat $^ > $@
