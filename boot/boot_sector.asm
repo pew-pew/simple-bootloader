@@ -5,9 +5,9 @@ mov bp, 0x8000
 mov sp, bp
 
 mov dh, 0x1 ; # of sectors
-mov dl, 0x80 ; drive number, 1st floppy
+;mov dl, ... ; drive number, set by BIOS
 mov bx, KERNEL_OFFSET ; output
-;call disk_load
+call disk_load
 
 mov ax, real_mode_msg
 call real_print_string
@@ -18,8 +18,6 @@ jmp switch_to_protected
 BEGIN_PM:
     mov eax, protected_mode_msg
     call print_string_pm
-
-    jmp $
 
     call KERNEL_OFFSET
 
