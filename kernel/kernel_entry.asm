@@ -1,4 +1,6 @@
 [bits 32]
 [extern main]
-call main
-jmp $
+
+kernel_entry:
+    call main
+    jmp $

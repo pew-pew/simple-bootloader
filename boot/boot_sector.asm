@@ -4,7 +4,7 @@ KERNEL_OFFSET equ 0x1000
 mov bp, 0x8000
 mov sp, bp
 
-mov dh, 0x1 ; # of sectors
+mov dh, 0x03 ; # of sectors
 ;mov dl, ... ; drive number, set by BIOS
 mov bx, KERNEL_OFFSET ; output
 call disk_load

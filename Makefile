@@ -4,7 +4,7 @@ LD = $(BIN_ROOT)/i386-elf-ld
 #GDB = $(BIN_ROOT)/i386-elf-gdb
 GDB = gdb
 
-CC_FLAGS = -g -ffreestanding -fno-asynchronous-unwind-tables
+CC_FLAGS = -I. -g -ffreestanding -fno-asynchronous-unwind-tables
 
 DST = build
 
@@ -13,18 +13,19 @@ KERNEL_OFFSET = 0x1000
 
 .PHONY: run
 run: build/os_image.bin
-	qemu-system-x86_64 -drive format=raw,if=ide,file=$<
+	qemu-system-i386 -drive format=raw,if=ide,file=$<
 
 .PHONY: debug
 debug: build/os_image.bin build/kernel.elf
-	qemu-system-x86_64 -drive format=raw,if=ide,file=$< -s -S &
+	qemu-system-i386 -drive format=raw,if=ide,file=$< -s -S &
 	sleep 1
 	$(GDB) \
 		-ex "symbol-file build/kernel.elf" \
 		-ex "break main" \
 		-ex "target remote localhost:1234" \
 		-ex "continue" \
-		-ex "layout src"
+		-ex "layout src" \
+		-ex "focus cmd"
 
 
 # ======
@@ -36,10 +37,12 @@ C_OBJ = $(addprefix build/, $(C_SOURCES:.c=.o))
 
 build/%.o: %.c $(C_HEADERS)
 	mkdir -p build/kernel
+	mkdir -p build/drivers
 	$(CC) $(CC_FLAGS) $< -c -o $@
 
 build/kernel/kernel_entry.o: kernel/kernel_entry.asm
 	mkdir -p build/kernel
+	mkdir -p build/drivers
 	nasm -f elf $^ -o $@
 
 build/kernel.bin: build/kernel/kernel_entry.o $(C_OBJ)
@@ -51,8 +54,12 @@ build/kernel.elf: build/kernel/kernel_entry.o $(C_OBJ)
 # ===========
 # Boot sector
 
-build/boot_sector.bin: boot/boot_sector.asm
-	nasm -f bin $^ -o $@
+BOOT_SOURCES = $(wildcard boot/*.asm) \
+			   $(wildcard boot/real-mode/*.asm) \
+			   $(wildcard boot/gdt/*.asm)
+
+build/boot_sector.bin: boot/boot_sector.asm $(BOOT_SOURCES)
+	nasm -f bin $< -o $@
 
 
 # ========
