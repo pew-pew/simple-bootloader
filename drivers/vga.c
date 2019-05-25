@@ -1,6 +1,7 @@
-#include <kernel/port.h>
+#include <drivers/vga.h>
 
-#include "vga.h"
+#include <kernel/port.h>
+#include <kernel/utils.h>
 
 #include <stddef.h>
 
@@ -39,20 +40,8 @@ void set_position(int pos) {
     port_byte_write(REG_SCREEN_DATA, pos_low);
 }
 
-void memmove(uint8_t *dst, const uint8_t *src, size_t n) {
-    if (dst < src) {
-        for (size_t i = 0; i < n; i++) {
-            dst[i] = src[i];
-        }
-    } else {
-        for (size_t i = n - 1; i != (size_t)-1; i--) {
-            dst[i] = src[i];
-        }
-    }
-}
-
 void shiftForward(int offset, uint16_t filler) {
-    memmove((uint8_t*)video_address + offset * 2, (uint8_t*)video_address,
+    memory_copy((uint8_t*)video_address + offset * 2, (uint8_t*)video_address,
             (ROWS * COLS - offset) * 2);
 
     for (int i = 0; i < offset; i++) {
@@ -61,7 +50,7 @@ void shiftForward(int offset, uint16_t filler) {
 }
 
 void shiftBackward(int offset, uint16_t filler) {
-    memmove((uint8_t*)video_address, (uint8_t*)video_address + offset * 2,
+    memory_copy((uint8_t*)video_address, (uint8_t*)video_address + offset * 2,
             (ROWS * COLS - offset) * 2);
 
     for (int i = ROWS * COLS - offset; i < ROWS * COLS; i++) {
