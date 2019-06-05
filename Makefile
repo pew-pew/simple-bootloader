@@ -35,23 +35,25 @@ C_SOURCES = $(wildcard kernel/*.c) $(wildcard drivers/*.c) $(wildcard cpu/*.c)
 C_HEADERS = $(wildcard kernel/*.c) $(wildcard drivers/*.c) $(wildcard cpu/*.h)
 C_OBJ = $(addprefix build/, $(C_SOURCES:.c=.o))
 
-build/%.o: %.c $(C_HEADERS)
+
+.PHONY: BUILD_DIRS
+BUILD_DIRS:
 	@mkdir -p build/kernel
 	@mkdir -p build/drivers
 	@mkdir -p build/cpu
+
+build/%.o: %.c $(C_HEADERS) BUILD_DIRS
 	$(CC) $(CC_FLAGS) $< -c -o $@
 
-build/kernel/kernel_entry.o: kernel/kernel_entry.asm
-	@mkdir -p build/kernel
-	@mkdir -p build/drivers
-	@mkdir -p build/cpu
-	nasm -f elf $^ -o $@
+build/%.o: %.asm $(C_HEADERS) BUILD_DIRS
+	nasm $< -f elf -o $@
 
 build/kernel.bin: build/kernel/kernel_entry.o $(C_OBJ)
 	$(LD) --oformat binary -Ttext $(KERNEL_OFFSET) $^ -o $@
 
 build/kernel.elf: build/kernel/kernel_entry.o $(C_OBJ)
 	$(LD) -Ttext $(KERNEL_OFFSET) $^ -o $@
+
 
 # ===========
 # Boot sector
