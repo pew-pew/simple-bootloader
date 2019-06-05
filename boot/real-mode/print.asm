@@ -2,12 +2,12 @@
 
 ; char in al
 real_print_char:
-    push ax
+    pusha
 
     mov ah, 0x0e
     int 0x10
 
-    pop ax
+    popa
     ret
 
 ; pointer to string in ax

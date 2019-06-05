@@ -27,24 +27,22 @@ disk_load:
 
     ret
 
-disk_err:
-    mov bl, ah
+    disk_err:
+        mov bl, ah
 
-    mov ax, disk_error_msg
-    call real_print_string
+        mov ax, disk_error_msg
+        call real_print_string
 
-    mov al, bl
-    call real_print_hex_4b
-    call real_print_nl
+        mov al, bl
+        call real_print_hex_4b
+        call real_print_nl
 
-    jmp $ ; hang
-    ret
+        jmp $ ; hang
 
-sectors_err:
-    mov ax, sectors_error_msg
-    call real_print_string
-    jmp $ ; hang
-    ret
+    sectors_err:
+        mov ax, sectors_error_msg
+        call real_print_string
+        jmp $ ; hang
 
 disk_error_msg:
     db `Disk read error, code:\r\n`, 0

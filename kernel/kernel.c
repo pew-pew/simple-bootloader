@@ -13,7 +13,6 @@ void write_hex(char* out, uint8_t x) {
     out[1] = hex_digit(x & 0xf);
 }
 
-
 void sleep() {
     int x = 0;
     for (int j = 0; j < 300000; j++) {

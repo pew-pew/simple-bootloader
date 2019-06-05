@@ -31,18 +31,20 @@ debug: build/os_image.bin build/kernel.elf
 # ======
 # Kernel
 
-C_SOURCES = $(wildcard kernel/*.c) $(wildcard drivers/*.c)
-C_HEADERS = $(wildcard kernel/*.c) $(wildcard drivers/*.c)
+C_SOURCES = $(wildcard kernel/*.c) $(wildcard drivers/*.c) $(wildcard cpu/*.c)
+C_HEADERS = $(wildcard kernel/*.c) $(wildcard drivers/*.c) $(wildcard cpu/*.h)
 C_OBJ = $(addprefix build/, $(C_SOURCES:.c=.o))
 
 build/%.o: %.c $(C_HEADERS)
-	mkdir -p build/kernel
-	mkdir -p build/drivers
+	@mkdir -p build/kernel
+	@mkdir -p build/drivers
+	@mkdir -p build/cpu
 	$(CC) $(CC_FLAGS) $< -c -o $@
 
 build/kernel/kernel_entry.o: kernel/kernel_entry.asm
-	mkdir -p build/kernel
-	mkdir -p build/drivers
+	@mkdir -p build/kernel
+	@mkdir -p build/drivers
+	@mkdir -p build/cpu
 	nasm -f elf $^ -o $@
 
 build/kernel.bin: build/kernel/kernel_entry.o $(C_OBJ)
@@ -67,3 +69,5 @@ build/boot_sector.bin: boot/boot_sector.asm $(BOOT_SOURCES)
 
 build/os_image.bin: build/boot_sector.bin build/kernel.bin
 	cat $^ > $@
+	truncate $@ -s $$((512 * 20))
+	cp $@ build/os_image.img # haha
