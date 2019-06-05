@@ -55,9 +55,9 @@ build/kernel.elf: build/kernel/kernel_entry.o $(C_OBJ)
 # ===========
 # Boot sector
 
-BOOT_SOURCES = $(wildcard boot/*.asm) \
-			   $(wildcard boot/real-mode/*.asm) \
-			   $(wildcard boot/gdt/*.asm)
+BOOT_SOURCES := $(wildcard boot/*.asm) \
+			    $(wildcard boot/real-mode/*.asm) \
+			    $(wildcard boot/gdt/*.asm)
 
 build/boot_sector.bin: boot/boot_sector.asm $(BOOT_SOURCES) | $(BUILD_DIRS)
 	nasm -f bin $< -o $@
