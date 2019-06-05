@@ -2,6 +2,8 @@
 #include <stdint.h>
 
 #include <drivers/vga.h>
+#include <cpu/raw_interrupt_handler.h>
+#include <cpu/idt.h>
 
 
 char hex_digit(uint8_t half) {
@@ -21,7 +23,14 @@ void sleep() {
 }
 
 void main() {
+    for (int i = 0; i < IDT_ENTRIES; i++) {
+        set_idt_gate(i, (uint32_t)raw_interrupt_handler);
+    };
+
+    init_idt();
+
+    asm("int $3");
     clearScreen();
-    printString("Hello!\nWorld!");
+    printString("Hello!\nWorld!\n");
     return;
 }

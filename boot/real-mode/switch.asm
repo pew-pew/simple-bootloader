@@ -31,3 +31,6 @@ begin_protected:
 
     jmp BEGIN_PM
     jmp $ ; never return here, please
+
+idt:
+    db 0, 0, 0, 0, 0, 0

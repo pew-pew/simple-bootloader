@@ -11,29 +11,33 @@ DST := build
 KERNEL_OFFSET := 0x1000
 
 
+.PHONY: build
+build: build/os_image.bin
+
 .PHONY: run
 run: build/os_image.bin
 	qemu-system-i386 -drive format=raw,if=ide,file=$<
 
 .PHONY: debug
 debug: build/os_image.bin build/kernel.elf
-	qemu-system-i386 -drive format=raw,if=ide,file=$< -s -S &
-	sleep 1
-	$(GDB) \
-		-ex "symbol-file build/kernel.elf" \
-		-ex "break main" \
-		-ex "target remote localhost:1234" \
-		-ex "continue" \
-		-ex "layout src" \
-		-ex "focus cmd"
-
+	xfce4-terminal --command $(GDB)
+	qemu-system-i386 -drive format=raw,if=ide,file=$< \
+		-s -S \
+		-monitor telnet:127.0.0.1:12345,server,nowait \
+		-d int
 
 # ======
 # Kernel
 
-C_SOURCES := $(wildcard kernel/*.c) $(wildcard drivers/*.c) $(wildcard cpu/*.c)
-C_HEADERS := $(wildcard kernel/*.c) $(wildcard drivers/*.c) $(wildcard cpu/*.h)
-C_OBJ := $(addprefix build/, $(C_SOURCES:.c=.o))
+C_SOURCES   := $(wildcard kernel/*.c) $(wildcard drivers/*.c) $(wildcard cpu/*.c)
+C_HEADERS   := $(wildcard kernel/*.h) $(wildcard drivers/*.h) $(wildcard cpu/*.h)
+ASM_SOURCES := $(wildcard kernel/*.asm) $(wildcard drivers/*.asm) $(wildcard cpu/*.asm)
+OBJ := $(addprefix build/, $(C_SOURCES:.c=.o)) $(addprefix build/, $(ASM_SOURCES:.asm=.o))
+
+.PHONY: hello
+hello:
+	@echo $(OBJ)
+
 
 BUILD_DIRS := build/kernel build/drivers build/cpu
 $(BUILD_DIRS):
@@ -45,10 +49,10 @@ build/%.o: %.c $(C_HEADERS) | $(BUILD_DIRS)
 build/%.o: %.asm $(C_HEADERS) | $(BUILD_DIRS)
 	nasm $< -f elf -o $@
 
-build/kernel.bin: build/kernel/kernel_entry.o $(C_OBJ)
+build/kernel.bin: build/kernel/kernel_entry.o $(OBJ)
 	$(LD) --oformat binary -Ttext $(KERNEL_OFFSET) $^ -o $@
 
-build/kernel.elf: build/kernel/kernel_entry.o $(C_OBJ)
+build/kernel.elf: build/kernel/kernel_entry.o $(OBJ)
 	$(LD) -Ttext $(KERNEL_OFFSET) $^ -o $@
 
 
