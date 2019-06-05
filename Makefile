@@ -1,14 +1,14 @@
-BIN_ROOT = "cross-compiler/i386elfgcc/bin"
-CC = $(BIN_ROOT)/i386-elf-gcc
-LD = $(BIN_ROOT)/i386-elf-ld
-#GDB = $(BIN_ROOT)/i386-elf-gdb
-GDB = gdb
+BIN_ROOT := "cross-compiler/i386elfgcc/bin"
+CC := $(BIN_ROOT)/i386-elf-gcc
+LD := $(BIN_ROOT)/i386-elf-ld
+#GDB := $(BIN_ROOT)/i386-elf-gdb
+GDB := gdb
 
-CC_FLAGS = -I. -g -ffreestanding -fno-asynchronous-unwind-tables
+CC_FLAGS := -I. -g -ffreestanding -fno-asynchronous-unwind-tables
 
-DST = build
+DST := build
 
-KERNEL_OFFSET = 0x1000
+KERNEL_OFFSET := 0x1000
 
 
 .PHONY: run
@@ -31,21 +31,18 @@ debug: build/os_image.bin build/kernel.elf
 # ======
 # Kernel
 
-C_SOURCES = $(wildcard kernel/*.c) $(wildcard drivers/*.c) $(wildcard cpu/*.c)
-C_HEADERS = $(wildcard kernel/*.c) $(wildcard drivers/*.c) $(wildcard cpu/*.h)
-C_OBJ = $(addprefix build/, $(C_SOURCES:.c=.o))
+C_SOURCES := $(wildcard kernel/*.c) $(wildcard drivers/*.c) $(wildcard cpu/*.c)
+C_HEADERS := $(wildcard kernel/*.c) $(wildcard drivers/*.c) $(wildcard cpu/*.h)
+C_OBJ := $(addprefix build/, $(C_SOURCES:.c=.o))
 
+BUILD_DIRS := build/kernel build/drivers build/cpu
+$(BUILD_DIRS):
+	mkdir -p $@
 
-.PHONY: BUILD_DIRS
-BUILD_DIRS:
-	@mkdir -p build/kernel
-	@mkdir -p build/drivers
-	@mkdir -p build/cpu
-
-build/%.o: %.c $(C_HEADERS) BUILD_DIRS
+build/%.o: %.c $(C_HEADERS) | $(BUILD_DIRS)
 	$(CC) $(CC_FLAGS) $< -c -o $@
 
-build/%.o: %.asm $(C_HEADERS) BUILD_DIRS
+build/%.o: %.asm $(C_HEADERS) | $(BUILD_DIRS)
 	nasm $< -f elf -o $@
 
 build/kernel.bin: build/kernel/kernel_entry.o $(C_OBJ)
@@ -62,7 +59,7 @@ BOOT_SOURCES = $(wildcard boot/*.asm) \
 			   $(wildcard boot/real-mode/*.asm) \
 			   $(wildcard boot/gdt/*.asm)
 
-build/boot_sector.bin: boot/boot_sector.asm $(BOOT_SOURCES)
+build/boot_sector.bin: boot/boot_sector.asm $(BOOT_SOURCES) | $(BUILD_DIRS)
 	nasm -f bin $< -o $@
 
 
