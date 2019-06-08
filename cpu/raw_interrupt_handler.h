@@ -2,4 +2,4 @@
 
 #include <stdint.h>
 
-void raw_interrupt_handler();
+extern uint32_t raw_interrupt_table[256];

@@ -4,7 +4,7 @@ LD := $(BIN_ROOT)/i386-elf-ld
 #GDB := $(BIN_ROOT)/i386-elf-gdb
 GDB := gdb
 
-CC_FLAGS := -I. -g -ffreestanding -fno-asynchronous-unwind-tables
+CC_FLAGS := -I. -g -ffreestanding -fno-asynchronous-unwind-tables -mno-red-zone
 
 DST := build
 
@@ -16,15 +16,15 @@ build: build/os_image.bin
 
 .PHONY: run
 run: build/os_image.bin
-	qemu-system-i386 -drive format=raw,if=ide,file=$<
+	qemu-system-i386 -drive format=raw,if=ide,file=$< -d guest_errors
 
 .PHONY: debug
 debug: build/os_image.bin build/kernel.elf
 	xfce4-terminal --command $(GDB)
 	qemu-system-i386 -drive format=raw,if=ide,file=$< \
-		-s -S \
 		-monitor telnet:127.0.0.1:12345,server,nowait \
-		-d int
+		-s -S \
+		-d guest_errors
 
 # ======
 # Kernel
@@ -72,5 +72,5 @@ build/boot_sector.bin: boot/boot_sector.asm $(BOOT_SOURCES) | $(BUILD_DIRS)
 
 build/os_image.bin: build/boot_sector.bin build/kernel.bin
 	cat $^ > $@
-	truncate $@ -s $$((512 * 20))
+	truncate $@ -s $$((512 + 512 * 80))
 	cp $@ build/os_image.img # haha

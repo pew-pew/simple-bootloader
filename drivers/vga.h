@@ -1,4 +1,4 @@
 #pragma once
 
-void printString(char *str);
-void clearScreen();
+void vga_print_string(char *str);
+void vga_clear_screen();

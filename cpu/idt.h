@@ -12,10 +12,8 @@ typedef struct __attribute__((packed)) IDT_descriptor {
     uint16_t offset_low;
     uint16_t segment_selector;
 
-    uint16_t zero : 4;
-
-    uint16_t low : 3;
-    uint16_t mid : 5;
+    uint8_t zero : 8;
+    uint16_t flags : 5;
     uint16_t DPL : 2;
     uint16_t P : 1;
 
@@ -23,7 +21,7 @@ typedef struct __attribute__((packed)) IDT_descriptor {
 } IDT_descriptor;
 
 enum {
-    IDT_ENTRIES = 1
+    IDT_ENTRIES = 256
 };
 
 void init_idt();

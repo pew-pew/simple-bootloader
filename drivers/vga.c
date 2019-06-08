@@ -83,7 +83,7 @@ int handle_scrolling(int pos) {
 
 void printChar(char c) {
     int pos = get_position();
-    
+
     if (c == '\n') {
         int row = pos / COLS;
         pos = (row + 1) * COLS;
@@ -93,18 +93,18 @@ void printChar(char c) {
         pos++;
     }
 
-    handle_scrolling(pos);
+    pos = handle_scrolling(pos);
     set_position(pos);
 }
 
-void printString(char *str) {
+void vga_print_string(char *str) {
     while (*str != '\0') {
         printChar(*str);
         str++;
     }
 }
 
-void clearScreen() {
+void vga_clear_screen() {
     for (int pos = 0; pos < ROWS * COLS; pos++) {
         video_address[pos * 2] = ' ';
     }

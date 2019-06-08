@@ -17,20 +17,28 @@ void write_hex(char* out, uint8_t x) {
 
 void sleep() {
     int x = 0;
-    for (int j = 0; j < 300000; j++) {
+    for (int j = 0; j < 30000000; j++) {
         x++;
     }
 }
 
-void main() {
+void kernel_main() {
     for (int i = 0; i < IDT_ENTRIES; i++) {
-        set_idt_gate(i, (uint32_t)raw_interrupt_handler);
-    };
+        set_idt_gate(i, raw_interrupt_table[i]);
+    }
 
     init_idt();
 
-    asm("int $3");
-    clearScreen();
-    printString("Hello!\nWorld!\n");
+    vga_clear_screen();
+    vga_print_string("Hello!\nWorld!\n");
+
+    asm("int $240");
+
+    /*
+    for (int i = 0; i < 25; i++) {
+        vga_print_string("Hello!\n");
+        sleep();
+    }
+    */
     return;
 }
