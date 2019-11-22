@@ -1,3 +1,5 @@
 cross-compiler
 build
 .gdb_history
+
+!cross-compiler/dl.sh
