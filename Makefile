@@ -26,6 +26,10 @@ debug: build/os_image.bin build/kernel.elf
 		-s -S \
 		-d guest_errors
 
+.PHONY: dump
+dump: build/kernel.elf
+	$(BIN_ROOT)/i386-elf-objdump -d -S build/kernel.elf | less
+
 # ======
 # Kernel
 

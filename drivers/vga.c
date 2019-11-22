@@ -111,3 +111,18 @@ void vga_clear_screen() {
 
     set_position(0);
 }
+
+char hex_digit(uint8_t half) {
+    return (half < 10 ? '0' + half : 'a' + half - 10);
+}
+
+void write_hex(char* out, uint8_t x) {
+    out[0] = hex_digit((x >> 4));
+    out[1] = hex_digit(x & 0xf);
+}
+
+void vga_print_hex(uint8_t num) {
+    char s[3] = {0, 0, 0};
+    write_hex(s, num);
+    vga_print_string(s);
+}

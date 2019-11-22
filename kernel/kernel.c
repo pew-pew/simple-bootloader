@@ -5,15 +5,8 @@
 #include <cpu/raw_interrupt_handler.h>
 #include <cpu/idt.h>
 
-
-char hex_digit(uint8_t half) {
-    return (half < 10 ? '0' + half : 'a' + half - 10);
-}
-
-void write_hex(char* out, uint8_t x) {
-    out[0] = hex_digit((x >> 4));
-    out[1] = hex_digit(x & 0xf);
-}
+#include <kernel/port.h>
+#include <cpu/pic.h>
 
 void sleep() {
     int x = 0;
@@ -32,13 +25,25 @@ void kernel_main() {
     vga_clear_screen();
     vga_print_string("Hello!\nWorld!\n");
 
-    asm("int $240");
+    uint8_t *addr = 0xfffff00;
+    vga_print_hex(*addr);
+    *addr = 0xab;
+    vga_print_hex(*addr);
 
     /*
-    for (int i = 0; i < 25; i++) {
-        vga_print_string("Hello!\n");
-        sleep();
-    }
+    asm("sti");
+    init_pic(IRQ0_offset, IRQ8_offset);
+
+    port_byte_write(PIC2_data, 0);
+    port_byte_write(PIC1_data, 0);
+
+    port_word_write(0x604, 0x2000);
+
+    uint8_t imr = port_byte_read(PIC2_data);
+    imr = port_byte_read(0xabcd);
+    vga_print_hex(imr);
+    vga_print_string(" = imr\n");
     */
+
     return;
 }
