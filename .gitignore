@@ -1,4 +1,4 @@
-cross-compiler
+cross-compiler/*
 build
 .gdb_history
 
